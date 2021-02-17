@@ -14,3 +14,9 @@ struct PointsData: Decodable {
     let accuracy: String
     let distance: String
 }
+
+extension PointsData: Equatable {
+    static func == (lhs: PointsData, rhs: PointsData) -> Bool {
+        return (lhs.longitude == rhs.longitude) && (lhs.latitude == rhs.latitude)
+    }
+}

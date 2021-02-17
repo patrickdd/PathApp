@@ -8,7 +8,7 @@
 import UIKit
 
 protocol PointsDataShowing {
-    func setData(with pointData: PointsData?)
+    func setData(with pointData: PointsData?, isCorrupted: Bool)
 }
 
 enum PointDataType: String {
@@ -38,7 +38,9 @@ class MainTableViewCell: UITableViewCell {
 
 // MARK: Methods related with PointsDataShowing
 extension MainTableViewCell: PointsDataShowing {
-    func setData(with pointData: PointsData?) {
+    func setData(with pointData: PointsData?, isCorrupted: Bool) {
+        stackViewBackgroundView.backgroundColor = isCorrupted ? UIColor.burntSienna : UIColor.scienceBlue
+        
         guard let pointData = pointData else { return }
         stackView.removeAllArrangedViews()
         

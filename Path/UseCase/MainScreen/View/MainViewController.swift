@@ -22,6 +22,7 @@ class MainViewController: UIViewController {
     private var path = GMSMutablePath()
     private var correctedPath = GMSMutablePath()
     private var correctedCoordinateBounds = GMSCoordinateBounds()
+    private var corruptedDataPoints = [PointsData]()
     var setCorrectPathButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.titleLabel?.font = UIFont.makeDefaultBold(with: 14.0)
@@ -51,6 +52,7 @@ class MainViewController: UIViewController {
         let rectangle = GMSPolyline(path: correctedPath)
         rectangle.map = mapView
         mapView?.animate(with: GMSCameraUpdate.fit(correctedCoordinateBounds, withPadding: 20.0))
+        tableView.reloadData()
     }
 }
 
@@ -78,9 +80,10 @@ extension MainViewController: MainViewType {
             if let previous = previousLocation, 8.0 > location.distance(from: previous) {
                 correctedPath.add(location.coordinate)
                 correctedCoordinateBounds = correctedCoordinateBounds.includingCoordinate(location.coordinate)
+            } else if let previous = previousLocation, 8.0 < location.distance(from: previous) {
+                corruptedDataPoints.append(point)
             }
-            
-            previousLocation = CLLocation(latitude: Double(point.latitude)!, longitude: Double(point.longitude)!)
+            previousLocation = CLLocation(latitude: latitude, longitude: longitude)
         }
     
         let rectangle = GMSPolyline(path: path)
@@ -98,7 +101,9 @@ extension MainViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: MainTableViewCell = tableView.dequeue(indexPath) as MainTableViewCell
-        cell.setData(with: presenter?.getItem(with: indexPath.row))
+        guard let pointsData = presenter?.getItem(with: indexPath.row) else { return cell }
+        let isCorrupted = corruptedDataPoints.contains { $0 == pointsData }
+        cell.setData(with: presenter?.getItem(with: indexPath.row), isCorrupted: isCorrupted)
         return cell
     }
 }
