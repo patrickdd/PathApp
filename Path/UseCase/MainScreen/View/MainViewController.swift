@@ -69,14 +69,15 @@ extension MainViewController: MainViewType {
         
         for point in pointsData {
            
-            location = CLLocation(latitude: Double(point.latitude)!, longitude: Double(point.longitude)!)
+            guard let latitude = Double(point.latitude), let longitude = Double(point.longitude) else { return }
+            
+            location = CLLocation(latitude: latitude, longitude: longitude)
             path.add(location.coordinate)
             coordinateBounds = coordinateBounds.includingCoordinate(location.coordinate)
             
             if let previous = previousLocation, 8.0 > location.distance(from: previous) {
-                let distance = location.distance(from: previous)
                 correctedPath.add(location.coordinate)
-                correctedCoordinateBounds.includingCoordinate(location.coordinate)
+                correctedCoordinateBounds = correctedCoordinateBounds.includingCoordinate(location.coordinate)
             }
             
             previousLocation = CLLocation(latitude: Double(point.latitude)!, longitude: Double(point.longitude)!)
